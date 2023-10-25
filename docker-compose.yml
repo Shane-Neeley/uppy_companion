@@ -1,12 +1,13 @@
-version: "3.9"
-
+version: '3'
 services:
-  companion:
+  uppy_companion:
     build: .
     ports:
       - "3020:3020"
-    volumes:
-      - ./uploads:/uploads
-
-volumes:
-  uploads:
+    environment:
+      - NODE_ENV=production
+      - COMPANION_DOMAIN=https://example.com
+      - COMPANION_SECRET=your_secret_key_here
+      - COMPANION_AWS_KEY=your_aws_key_here
+      - COMPANION_AWS_SECRET=your_aws_secret_here
+      - COMPANION_AWS_BUCKET=your_aws_bucket_here

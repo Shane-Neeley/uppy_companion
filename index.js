@@ -1,51 +1,98 @@
-require('dotenv').config()
-const express = require('express')
-const companion = require('@uppy/companion')
+const express = require('express');
+const serverless = require('serverless-http');
 const bodyParser = require('body-parser')
 const session = require('express-session')
+// const compression = require('compression')
+// const fs = require('fs');
+const cors = require('cors')
+const uppy = require('@uppy/companion')
 
-const app = express()
+const app = express();
 
-const companionConfig = require('./companion.config.js')
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
-app.use(bodyParser.json())
+const port = process.env.PORT;
+
+
+// app.use(compression())
+// CORS Setup
+app.use(cors({
+  origin: 'http://localhost:3000',  // Replace with your client's origin
+  methods: ['GET', 'POST'],
+  credentials: true,
+}));
+
 app.use(session({
-  secret: process.env.APP_SECRET,
+  secret: process.env.SESSION_SECRET,
   resave: true,
   saveUninitialized: true
 }))
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
+const DOMAIN = process.env.DOMAIN;
+const host = DOMAIN.split('://')[1]
+const protocol = DOMAIN.split('://')[0]
 
-app.use((req, res, next) => {
-  res.setHeader(
-    'Access-Control-Allow-Origin',
-    req.headers.origin || '*'
-  )
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, PATCH, DELETE'
-  )
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Authorization, Origin, Content-Type, Accept, X-User-Id'
-  )
-  next()
-})
+// if (!fs.existsSync('/tmp')) fs.mkdirSync('/tmp');
+// if (!fs.existsSync('./tmp')) fs.mkdirSync('./tmp');
 
-// Routes
-app.get('/', (req, res) => {
-  return res.status(403).json({ message: 'Not Allowed' })
-})
+const options = {
+  providerOptions: {
+    s3: {
+      getKey: (req, filename) => {
+        const customName = req.query.metadata?.customName || filename;
+        return customName;
+      },
+      bucket: process.env.BUCKET_NAME,
+      region: process.env.BUCKET_REGION,
+      key: process.env.USER_ACCESS_KEY,
+      secret: process.env.USER_SECRET_KEY
+    },
+    // instagram: {
+    //   key: process.env.INSTAGRAM_KEY,
+    //   secret: process.env.INSTAGRAM_SECRET
+    // },
+    // drive: {
+    //   key: process.env.GOOGLE_KEY,
+    //   secret: process.env.GOOGLE_SECRET
+    // },
+    // dropbox: {
+    //   key: process.env.DROPBOX_KEY,
+    //   secret: process.env.DROPBOX_SECRET
+    // },
+    searchProviders: {
+      unsplash: {
+        key: process.env.UNSPLASH_API_KEY,
+        secret: process.env.UNSPLASH_API_SECRET,
+      },
+    }
+  },
+  server: {
+    host: host,
+    protocol: protocol
+  },
+  filePath: './tmp',
+  // Custom filename logic
+  filename: (req, file) => {
+    const customName = req.body.customName || file.name;
+    return customName;
+  },
+  secret: process.env.UPPY_SECRET
+}
 
-app.use(companion.app(companionConfig))
+app.use(uppy.app(options))
 
-app.use((req, res, next) => {
-  return res.status(404).json({ message: 'Not Found' })
-})
 
-app.use((err, req, res, next) => {
-  res.status(err.status || 500).json({ message: err.message, error: err })
-})
 
-companion.socket(app.listen(process.env.APP_PORT), companionConfig)
+app.get('/', (req, res) => res.send('Lambda'));
+app.get('/tt', (req, res) => res.send('fef'));
 
-console.log('Welcome to Companion!')
+if (process.env.ENVIRONMENT === 'production') {
+  exports.handler = serverless(app);
+} else {
+  app.listen(port, () => {
+    console.log(`Server is listening on port ${port}.`);
+  });
+}
