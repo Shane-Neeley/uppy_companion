@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  companion:
+    build: .
+    ports:
+      - "3020:3020"
+    volumes:
+      - ./uploads:/uploads
+
+volumes:
+  uploads:

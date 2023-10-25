@@ -20,6 +20,12 @@ You can also modify the ```companion.config.js``` file to add new providers or c
 npm run start
 ```
 
+Or with Docker:
+
+```bash
+docker compose up --build
+```
+
 This will run Companion at the host and port you've specified.
 
 ## Modify it
