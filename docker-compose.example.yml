@@ -11,4 +11,4 @@ services:
       - COMPANION_AWS_KEY=your_aws_key_here
       - COMPANION_AWS_SECRET=your_aws_secret_here
       - COMPANION_AWS_BUCKET=your_aws_bucket_here
-    
+      

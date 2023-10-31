@@ -1,4 +1,6 @@
+# Added
 .env
+docker-compose.yml
 
 # Logs
 logs

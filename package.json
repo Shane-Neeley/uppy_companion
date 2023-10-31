@@ -1,6 +1,12 @@
 {
-  "name": "uploader",
+  "name": "uppy_companion",
   "version": "1.0.0",
+  "description": "Uppy Companion",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
   "dependencies": {
     "@uppy/companion": "^3.7.2",
     "body-parser": "^1.18.3",
@@ -10,5 +16,8 @@
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "serverless-http": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=16.9.0"
   }
 }
