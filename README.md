@@ -34,3 +34,10 @@ docker compose up --build
 This will run on `localhost:3020`
 
 ---
+
+Note, If something already running on this port, you can find and kill it with:
+
+```bash
+lsof -i :3020
+kill -9 <PID>
+```
